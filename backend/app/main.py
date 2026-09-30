@@ -9,3 +9,4 @@ def root():
 
 
 #uvicorn app.main:app --reload
+#deactivate
