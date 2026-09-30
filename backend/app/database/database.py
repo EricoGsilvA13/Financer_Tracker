@@ -1,11 +1,11 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-database_URL = ("mysql+pymysql://root:senha@localhost/finance_tracker")
+DATABASE_URL = ("mysql+pymysql://root:senha@localhost/finance_tracker")
 
-engine = create_engine(database_URL)
+engine = create_engine(DATABASE_URL)
 
-Sessiolacal = sessionmaker(
+Sessionlacal = sessionmaker(
     autocommit=False,
     autoflush=False,
     bind=engine
