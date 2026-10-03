@@ -92,7 +92,6 @@ Alimentação
 ```
 
 
-
 ---
 
 ## RN005 - Tipo da Categoria
