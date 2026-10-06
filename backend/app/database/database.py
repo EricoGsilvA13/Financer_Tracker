@@ -1,12 +1,15 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+from app.core.config import DB_HOST, DB_NAME, DB_PASSWORD, DB_USER, DB_PORT
 
-DATABASE_URL = ("mysql+pymysql://root:senha@localhost/finance_tracker")
+
+DATABASE_URL = (f"mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}")
 
 engine = create_engine(DATABASE_URL)
 
-Sessionlacal = sessionmaker(
+SessionLocal = sessionmaker(
     autocommit=False,
     autoflush=False,
     bind=engine
 )
+
