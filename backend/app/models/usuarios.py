@@ -15,9 +15,9 @@ class Usuario(Base):
     __tablename__ = "usuarios"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    nome: Mapped[str] = mapped_column(String(80))
+    nome: Mapped[str] = mapped_column(String(80), nullable=False)
     email: Mapped[str] = mapped_column(String(200), unique=True)
-    senha_hash: Mapped[str] = mapped_column(String(280))
+    senha_hash: Mapped[str] = mapped_column(String(280), nullable=False)
     data_criacao: Mapped[datetime] = mapped_column(server_default=func.now())
 
     receitas: Mapped[List["Receita"]] = relationship(back_populates="usuario")
