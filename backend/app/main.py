@@ -8,9 +8,16 @@ from app.models.despesas import Despesa
 from app.models.receitas import Receita
 from app.models.usuarios import Usuario
 
+from app.routes.usuario_routes import usuario_router
+
 app = FastAPI(title="Finance Tracker")
 
 Base.metadata.create_all(bind=engine)
+
+app.include_router(usuario_router)
+
+
+
 
 @app.get("/")
 def root():
