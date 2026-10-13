@@ -27,3 +27,4 @@ def root():
 
 #uvicorn app.main:app --reload
 #deactivate
+#.\.venv\Scripts\Activate.ps1
