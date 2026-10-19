@@ -15,3 +15,8 @@ class TotaisporCategoriaSchemaResponse(BaseModel):
     total: Decimal
 
     model_config = ConfigDict(from_attributes=True)
+
+class TotalSchemaResponse(BaseModel):
+    total: Decimal
+
+    model_config = ConfigDict(from_attributes=True)

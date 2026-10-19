@@ -4,7 +4,7 @@ from decimal import Decimal
 from app.models.despesas import Despesa
 from app.models.receitas import Receita
 from app.models.categorias import Categoria
-from app.schemas.estatisticas import SaldoAtualSchemaResponse, TotaisporCategoriaSchemaResponse
+from app.schemas.estatisticas import SaldoAtualSchemaResponse, TotaisporCategoriaSchemaResponse, TotalSchemaResponse
 
 
 class EstatisticaService():
@@ -62,10 +62,14 @@ class EstatisticaService():
 
         total_receitas = self._calcular_total_receitas(db)
 
-        return total_receitas
+        return TotalSchemaResponse(
+            total=total_receitas
+            )
     
     def calcular_total_despesas(self, db: Session):
         
         despesa_total = self._calcular_total_despesas(db)
 
-        return despesa_total
+        return TotalSchemaResponse(
+            total=despesa_total
+        )
