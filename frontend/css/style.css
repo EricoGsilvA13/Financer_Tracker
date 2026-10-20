@@ -1,0 +1,19 @@
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Segoe UI', sans-serif; background: #0f172a; color: #e2e8f0; min-height: 100vh; }
+
+header { background: #1e293b; padding: 16px 32px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; border-bottom: 1px solid #334155; }
+header h1 { font-size: 1.5rem; color: #38bdf8; }
+nav div { display: flex; gap: 8px; flex-wrap: wrap; }
+nav a { color: #94a3b8; text-decoration: none; padding: 8px 16px; border-radius: 8px; transition: .2s; }
+nav a:hover { background: #334155; color: #fff; }
+
+main { max-width: 1100px; margin: 40px auto; padding: 0 20px; }
+main h2 { margin-bottom: 24px; font-weight: 600; }
+
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; }
+.card { background: #1e293b; padding: 24px; border-radius: 16px; border: 1px solid #334155; transition: transform .2s, border-color .2s; }
+.card:hover { transform: translateY(-4px); border-color: #38bdf8; }
+.card h3 { font-size: .85rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; }
+.card p { font-size: 1.8rem; font-weight: 700; }
+#receitas { color: #4ade80; }
+#despesas { color: #f87171; }
