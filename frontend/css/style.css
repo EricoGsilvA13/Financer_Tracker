@@ -17,3 +17,33 @@ main h2 { margin-bottom: 24px; font-weight: 600; }
 .card p { font-size: 1.8rem; font-weight: 700; }
 #receitas { color: #4ade80; }
 #despesas { color: #f87171; }
+
+
+/* ===== Acréscimos para as demais páginas (categorias, receitas, despesas) ===== */
+ 
+/* Menu sem <div> interna (como em categorias.html) */
+nav { display: flex; gap: 8px; flex-wrap: wrap; }
+ 
+/* Painéis de formulário e lista */
+main > div { background: #1e293b; padding: 24px; border-radius: 16px; border: 1px solid #334155; display: grid; gap: 16px; max-width: 480px; margin-bottom: 28px; }
+main > div h2 { margin-bottom: 0; font-size: 1.2rem; }
+ 
+label { color: #94a3b8; font-size: .9rem; }
+input, select { width: 100%; padding: 10px 14px; background: #0f172a; color: #e2e8f0; border: 1px solid #334155; border-radius: 8px; font: inherit; }
+input::placeholder { color: #94a3b8; opacity: .7; }
+input:focus, select:focus { outline: none; border-color: #38bdf8; }
+button { padding: 12px; background: #38bdf8; color: #0f172a; border: 0; border-radius: 8px; font-weight: 700; cursor: pointer; transition: .2s; }
+button:hover { filter: brightness(1.1); }
+ 
+/* Lista de categorias */
+ul { list-style: none; display: grid; gap: 10px; }
+ul li { padding: 12px 16px; background: #0f172a; border: 1px solid #334155; border-radius: 8px; transition: border-color .2s; }
+ul li:hover { border-color: #38bdf8; }
+ul:empty::before { content: "Nenhuma categoria cadastrada ainda."; color: #94a3b8; font-size: .9rem; }
+ 
+/* Tabelas (receitas e despesas) */
+table { width: 100%; border-collapse: collapse; background: #1e293b; border-radius: 16px; overflow: hidden; }
+th { text-align: left; padding: 14px 16px; color: #94a3b8; font-size: .8rem; text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px solid #334155; }
+td { padding: 14px 16px; border-bottom: 1px solid #334155; }
+tr:hover td { background: rgba(56, 189, 248, .06); }
+ 
