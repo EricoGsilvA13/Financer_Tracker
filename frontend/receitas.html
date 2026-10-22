@@ -18,6 +18,20 @@
     </header>
     <main>
         <section>
+            <h1>Receitas</h1>
+            <div class="card">
+                <h2>Nova Receita</h2>
+                <label for="descricao">Descrição:</label>
+                <input type="text" id="descricao_receita">
+                <label for="valor">Valor:</label>
+                <input type="number" id="valor_receita">
+                <label for="data">Data:</label>
+                <input type="date" id="data_receita">
+                <label for="categorias">Categoria:</label>
+                <select name="categorias" id="categoria_receita"></select>
+                <button id="button_salvar_receita">Salvar</button>
+            </div>
+            <h2>Receitas Cadastradas</h2>
             <table>
                 <thead>
                     <tr>
@@ -36,5 +50,6 @@
             </table>
         </section>
     </main>
+<script src="js/receitas.js"></script>
 </body>
 </html>
