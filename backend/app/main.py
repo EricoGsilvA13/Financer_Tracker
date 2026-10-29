@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 from app.database.base import Base
 from app.database.database import engine
@@ -14,6 +15,16 @@ from app.routes.receitas_routes import receitas_router
 from app.routes.despesas_router import despesas_router
 
 app = FastAPI(title="Finance Tracker")
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://127.0.0.1:5500",
+        "http://localhost:5500"
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 Base.metadata.create_all(bind=engine)
 
