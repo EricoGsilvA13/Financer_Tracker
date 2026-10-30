@@ -49,3 +49,66 @@ async function excluirCategoria(id) {
 
     return await response.json();
 }
+async function listarUsuarios() {
+    const response = await fetch(
+        `${API_URL}/usuarios`
+    );
+
+    if (!response.ok) {
+        throw new Error("Erro ao buscar usuários");
+    }
+
+    return await response.json();
+}
+
+async function listarReceitas() {
+    const response = await fetch(
+        `${API_URL}/receitas`
+    );
+
+    if (!response.ok) {
+        throw new Error("Erro ao buscar receitas");
+    }
+
+    return await response.json();
+}
+
+async function criarReceita(descricao, valor, categoriaId, dataMovimentacao, usuarioId) {
+    const response = await fetch(
+        `${API_URL}/receitas`,
+        {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                descricao: descricao,
+                valor: valor,
+                categoria_id: categoriaId,
+                data_movimentacao: dataMovimentacao,
+                usuario_id: usuarioId
+            })
+        }
+    );
+
+    if (!response.ok) {
+        throw new Error("Erro ao criar receita");
+    }
+
+    return await response.json();
+}
+
+async function excluirReceita(id) {
+    const response = await fetch(
+        `${API_URL}/receitas/${id}`,
+        {
+            method: "DELETE"
+        }
+    );
+
+    if (!response.ok) {
+        throw new Error("Erro ao excluir receita");
+    }
+
+    return await response.json();
+}

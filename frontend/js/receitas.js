@@ -6,16 +6,9 @@ const categoria = document.getElementById("categoria_receita");
 const botao = document.getElementById("button_salvar_receita");
 const lista = document.getElementById("minha_lista_receita");
 
-// Lê uma lista guardada no navegador (ou devolve lista vazia)
-function lerLista(chave) {
-    try {
-        return JSON.parse(localStorage.getItem(chave)) || [];
-    } catch (erro) {
-        return [];
-    }
-}
-
-let receitas = lerLista("receitas");
+// Dados carregados da API
+let todasCategorias = [];
+let usuario = null;
 
 // "2026-10-05" -> "05/10/2026"
 function formatarData(texto) {
@@ -38,26 +31,48 @@ function criarCelula(texto, classe) {
     return td;
 }
 
-// Coloca as categorias cadastradas dentro do <select>
-function preencherCategorias() {
-    const categorias = lerLista("categorias");
+// A receita só guarda o id da categoria, então procuramos o nome dela
+function nomeDaCategoria(categoriaId) {
+    const encontrada = todasCategorias.find(function (item) {
+        return item.id === categoriaId;
+    });
+
+    return encontrada ? encontrada.nome : "Sem categoria";
+}
+
+// Busca as categorias na API e preenche o <select> só com as de tipo "receita"
+async function preencherCategorias() {
+    todasCategorias = await listarCategorias();
+
+    const categoriasReceita = todasCategorias.filter(function (item) {
+        return item.tipo === "receita";
+    });
+
     categoria.innerHTML = "";
 
     const primeira = document.createElement("option");
     primeira.value = "";
-    primeira.textContent = categorias.length === 0 ? "Cadastre uma categoria antes" : "Selecione...";
+    primeira.textContent = categoriasReceita.length === 0 ? "Cadastre uma categoria antes" : "Selecione...";
     categoria.appendChild(primeira);
 
-    categorias.forEach(function (nome) {
+    categoriasReceita.forEach(function (item) {
         const opcao = document.createElement("option");
-        opcao.value = nome;
-        opcao.textContent = nome;
+        opcao.value = item.id;
+        opcao.textContent = item.nome;
         categoria.appendChild(opcao);
     });
 }
 
-// Desenha a tabela a partir da lista de receitas
-function mostrarReceitas() {
+// Busca os usuários na API e usa o primeiro da lista
+async function carregarUsuario() {
+    const usuarios = await listarUsuarios();
+    usuario = usuarios.length > 0 ? usuarios[0] : null;
+}
+
+// Busca as receitas na API e desenha a tabela
+async function carregarReceitas() {
+    const receitas = await listarReceitas();
+
     lista.innerHTML = "";
 
     if (receitas.length === 0) {
@@ -69,21 +84,25 @@ function mostrarReceitas() {
         return;
     }
 
-    receitas.forEach(function (receita, posicao) {
+    receitas.forEach(function (receita) {
         const tr = document.createElement("tr");
 
         tr.appendChild(criarCelula(receita.descricao));
-        tr.appendChild(criarCelula(formatarValor(receita.valor), "positivo"));
-        tr.appendChild(criarCelula(formatarData(receita.data)));
-        tr.appendChild(criarCelula(receita.categoria));
+        tr.appendChild(criarCelula(formatarValor(Number(receita.valor)), "positivo"));
+        tr.appendChild(criarCelula(formatarData(receita.data_movimentacao)));
+        tr.appendChild(criarCelula(nomeDaCategoria(receita.categoria_id)));
 
         const tdAcoes = document.createElement("td");
         const excluir = document.createElement("button");
         excluir.textContent = "Excluir";
-        excluir.addEventListener("click", function () {
-            receitas.splice(posicao, 1);
-            localStorage.setItem("receitas", JSON.stringify(receitas));
-            mostrarReceitas();
+        excluir.addEventListener("click", async function () {
+            try {
+                await excluirReceita(receita.id);
+                await carregarReceitas();
+            } catch (erro) {
+                console.error(erro);
+                alert("Não foi possível excluir a receita. Tente novamente.");
+            }
         });
         tdAcoes.appendChild(excluir);
         tr.appendChild(tdAcoes);
@@ -92,8 +111,13 @@ function mostrarReceitas() {
     });
 }
 
-// Ao clicar em "Salvar", guarda a receita e mostra na tabela
-botao.addEventListener("click", function () {
+// Ao clicar em "Salvar", cria a receita na API e atualiza a tabela
+botao.addEventListener("click", async function () {
+    if (usuario === null) {
+        alert("Nenhum usuário cadastrado. Cadastre um usuário antes de salvar receitas.");
+        return;
+    }
+
     const texto = descricao.value.trim();
     const numero = Number(valor.value);
 
@@ -102,14 +126,20 @@ botao.addEventListener("click", function () {
         return;
     }
 
-    receitas.push({
-        descricao: texto,
-        valor: numero,
-        data: data.value,
-        categoria: categoria.value
-    });
-    localStorage.setItem("receitas", JSON.stringify(receitas));
-    mostrarReceitas();
+    try {
+        await criarReceita(
+            texto,
+            numero,
+            Number(categoria.value),
+            data.value,
+            usuario.id
+        );
+        await carregarReceitas();
+    } catch (erro) {
+        console.error(erro);
+        alert("Não foi possível salvar a receita. Tente novamente.");
+        return;
+    }
 
     // Limpa o formulário
     descricao.value = "";
@@ -119,5 +149,16 @@ botao.addEventListener("click", function () {
     descricao.focus();
 });
 
-preencherCategorias();
-mostrarReceitas();
+// Ao abrir a página, carrega categorias, usuário e receitas (nessa ordem)
+async function iniciar() {
+    try {
+        await preencherCategorias();
+        await carregarUsuario();
+        await carregarReceitas();
+    } catch (erro) {
+        console.error(erro);
+        alert("Não foi possível carregar os dados. Verifique se a API está rodando.");
+    }
+}
+
+iniciar();
