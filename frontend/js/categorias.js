@@ -4,23 +4,21 @@ const tipo = document.getElementById("tipo_categoria");
 const botao = document.getElementById("button_salvar_categoria");
 const lista = document.getElementById("minha_lista_categoria");
 
-// Categorias guardadas no navegador (se não houver nenhuma, começa vazia)
-const categorias = JSON.parse(localStorage.getItem("categorias")) || [];
+// Busca as categorias na API e desenha a lista
+async function carregarCategorias() {
+    const categorias = await listarCategorias();
 
-// Desenha a lista a partir das categorias salvas
-function mostrarCategorias() {
     lista.innerHTML = "";
 
-    categorias.forEach(function (categoria, posicao) {
+    categorias.forEach(function (categoria) {
         const item = document.createElement("li");
         item.textContent = categoria.nome + " (" + categoria.tipo + ") ";
 
         const excluir = document.createElement("button");
         excluir.textContent = "Excluir";
-        excluir.addEventListener("click", function () {
-            categorias.splice(posicao, 1);
-            localStorage.setItem("categorias", JSON.stringify(categorias));
-            mostrarCategorias();
+        excluir.addEventListener("click", async function () {
+            await excluirCategoria(categoria.id);
+            await carregarCategorias();
         });
 
         item.appendChild(excluir);
@@ -28,11 +26,11 @@ function mostrarCategorias() {
     });
 }
 
-// Ao abrir a página, mostra as categorias que já estavam salvas
-mostrarCategorias();
+// Ao abrir a página, mostra as categorias que já estão na API
+carregarCategorias();
 
-// Ao clicar em "Salvar", adiciona a categoria digitada na lista
-botao.addEventListener("click", function () {
+// Ao clicar em "Salvar", cria a categoria na API e recarrega a lista
+botao.addEventListener("click", async function () {
     const nome = input.value.trim();
 
     // Não salva se o campo estiver vazio
@@ -40,9 +38,8 @@ botao.addEventListener("click", function () {
         return;
     }
 
-    categorias.push({ nome: nome, tipo: tipo.value });
-    localStorage.setItem("categorias", JSON.stringify(categorias));
-    mostrarCategorias();
+    await criarCategoria(nome, tipo.value);
+    await carregarCategorias();
 
     // Limpa o campo e deixa pronto para a próxima categoria
     input.value = "";

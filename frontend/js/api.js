@@ -34,3 +34,18 @@ async function criarCategoria(nome, tipo) {
 
     return await response.json();
 }
+
+async function excluirCategoria(id) {
+    const response = await fetch(
+        `${API_URL}/categorias/${id}`,
+        {
+            method: "DELETE"
+        }
+    );
+
+    if (!response.ok) {
+        throw new Error("Erro ao excluir categoria");
+    }
+
+    return await response.json();
+}
