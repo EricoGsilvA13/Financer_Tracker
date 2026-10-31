@@ -1,4 +1,5 @@
 // Elementos da página
+const usuarioSelect = document.getElementById("usuario_despesa");
 const descricao = document.getElementById("descricao_despesa");
 const valor = document.getElementById("valor_despesa");
 const data = document.getElementById("data_despesa");
@@ -6,16 +7,8 @@ const categoria = document.getElementById("categoria_despesa");
 const botao = document.getElementById("button_salvar_despesa");
 const lista = document.getElementById("minha_lista_despesa");
 
-// Lê uma lista guardada no navegador (ou devolve lista vazia)
-function lerLista(chave) {
-    try {
-        return JSON.parse(localStorage.getItem(chave)) || [];
-    } catch (erro) {
-        return [];
-    }
-}
-
-let despesas = lerLista("despesas");
+// Categorias carregadas da API (usadas para mostrar o nome na tabela)
+let todasCategorias = [];
 
 // "2026-10-05" -> "05/10/2026"
 function formatarData(texto) {
@@ -38,52 +31,110 @@ function criarCelula(texto, classe) {
     return td;
 }
 
-// Coloca as categorias cadastradas dentro do <select>
-function preencherCategorias() {
-    const categorias = lerLista("categorias");
+// A despesa só guarda o id da categoria, então procuramos o nome dela
+function nomeDaCategoria(categoriaId) {
+    const encontrada = todasCategorias.find(function (item) {
+        return item.id === categoriaId;
+    });
+
+    return encontrada ? encontrada.nome : "Sem categoria";
+}
+
+// Mostra uma linha de aviso na tabela
+function mostrarMensagemNaTabela(texto) {
+    const tr = document.createElement("tr");
+    const td = criarCelula(texto);
+    td.colSpan = 5;
+    tr.appendChild(td);
+    lista.appendChild(tr);
+}
+
+// Busca as categorias na API e preenche o <select> só com as de tipo "despesa"
+async function preencherCategorias() {
+    todasCategorias = await listarCategorias();
+
+    const categoriasDespesa = todasCategorias.filter(function (item) {
+        return item.tipo === "despesa";
+    });
+
     categoria.innerHTML = "";
 
     const primeira = document.createElement("option");
     primeira.value = "";
-    primeira.textContent = categorias.length === 0 ? "Cadastre uma categoria antes" : "Selecione...";
+    primeira.textContent = categoriasDespesa.length === 0 ? "Cadastre uma categoria antes" : "Selecione...";
     categoria.appendChild(primeira);
 
-    categorias.forEach(function (nome) {
+    categoriasDespesa.forEach(function (item) {
         const opcao = document.createElement("option");
-        opcao.value = nome;
-        opcao.textContent = nome;
+        opcao.value = item.id;
+        opcao.textContent = item.nome;
         categoria.appendChild(opcao);
     });
 }
 
-// Desenha a tabela a partir da lista de despesas
-function mostrarDespesas() {
-    lista.innerHTML = "";
+// Busca os usuários na API e preenche o <select> de usuários
+async function preencherUsuarios() {
+    const usuarios = await listarUsuarios();
 
-    if (despesas.length === 0) {
-        const tr = document.createElement("tr");
-        const td = criarCelula("Nenhuma despesa cadastrada");
-        td.colSpan = 5;
-        tr.appendChild(td);
-        lista.appendChild(tr);
+    usuarioSelect.innerHTML = "";
+
+    if (usuarios.length === 0) {
+        const vazia = document.createElement("option");
+        vazia.value = "";
+        vazia.textContent = "Nenhum usuário cadastrado";
+        usuarioSelect.appendChild(vazia);
         return;
     }
 
-    despesas.forEach(function (despesa, posicao) {
+    // O primeiro usuário da lista já vem selecionado
+    usuarios.forEach(function (item) {
+        const opcao = document.createElement("option");
+        opcao.value = item.id;
+        opcao.textContent = item.nome;
+        usuarioSelect.appendChild(opcao);
+    });
+}
+
+// Busca as despesas na API e desenha a tabela só com as do usuário escolhido
+async function carregarDespesas() {
+    lista.innerHTML = "";
+
+    if (usuarioSelect.value === "") {
+        mostrarMensagemNaTabela("Nenhum usuário selecionado");
+        return;
+    }
+
+    const usuarioId = Number(usuarioSelect.value);
+    const todasDespesas = await listarDespesas();
+
+    const despesas = todasDespesas.filter(function (despesa) {
+        return despesa.usuario_id === usuarioId;
+    });
+
+    if (despesas.length === 0) {
+        mostrarMensagemNaTabela("Nenhuma despesa cadastrada para este usuário");
+        return;
+    }
+
+    despesas.forEach(function (despesa) {
         const tr = document.createElement("tr");
 
         tr.appendChild(criarCelula(despesa.descricao));
-        tr.appendChild(criarCelula(formatarValor(despesa.valor), "negativo"));
-        tr.appendChild(criarCelula(formatarData(despesa.data)));
-        tr.appendChild(criarCelula(despesa.categoria));
+        tr.appendChild(criarCelula(formatarValor(Number(despesa.valor)), "negativo"));
+        tr.appendChild(criarCelula(formatarData(despesa.data_movimentacao)));
+        tr.appendChild(criarCelula(nomeDaCategoria(despesa.categoria_id)));
 
         const tdAcoes = document.createElement("td");
         const excluir = document.createElement("button");
         excluir.textContent = "Excluir";
-        excluir.addEventListener("click", function () {
-            despesas.splice(posicao, 1);
-            localStorage.setItem("despesas", JSON.stringify(despesas));
-            mostrarDespesas();
+        excluir.addEventListener("click", async function () {
+            try {
+                await excluirDespesa(despesa.id);
+                await carregarDespesas();
+            } catch (erro) {
+                console.error(erro);
+                alert("Não foi possível excluir a despesa. Tente novamente.");
+            }
         });
         tdAcoes.appendChild(excluir);
         tr.appendChild(tdAcoes);
@@ -92,8 +143,23 @@ function mostrarDespesas() {
     });
 }
 
-// Ao clicar em "Salvar", guarda a despesa e mostra na tabela
-botao.addEventListener("click", function () {
+// Ao trocar o usuário, mostra as despesas dele
+usuarioSelect.addEventListener("change", async function () {
+    try {
+        await carregarDespesas();
+    } catch (erro) {
+        console.error(erro);
+        alert("Não foi possível carregar as despesas. Tente novamente.");
+    }
+});
+
+// Ao clicar em "Salvar", cria a despesa para o usuário escolhido
+botao.addEventListener("click", async function () {
+    if (usuarioSelect.value === "") {
+        alert("Selecione um usuário antes de salvar a despesa.");
+        return;
+    }
+
     const texto = descricao.value.trim();
     const numero = Number(valor.value);
 
@@ -102,16 +168,22 @@ botao.addEventListener("click", function () {
         return;
     }
 
-    despesas.push({
-        descricao: texto,
-        valor: numero,
-        data: data.value,
-        categoria: categoria.value
-    });
-    localStorage.setItem("despesas", JSON.stringify(despesas));
-    mostrarDespesas();
+    try {
+        await criarDespesa(
+            texto,
+            numero,
+            Number(categoria.value),
+            data.value,
+            Number(usuarioSelect.value)
+        );
+        await carregarDespesas();
+    } catch (erro) {
+        console.error(erro);
+        alert("Não foi possível salvar a despesa. Tente novamente.");
+        return;
+    }
 
-    // Limpa o formulário
+    // Limpa o formulário (o usuário escolhido continua selecionado)
     descricao.value = "";
     valor.value = "";
     data.value = "";
@@ -119,5 +191,16 @@ botao.addEventListener("click", function () {
     descricao.focus();
 });
 
-preencherCategorias();
-mostrarDespesas();
+// Ao abrir a página, carrega categorias, usuários e despesas (nessa ordem)
+async function iniciar() {
+    try {
+        await preencherCategorias();
+        await preencherUsuarios();
+        await carregarDespesas();
+    } catch (erro) {
+        console.error(erro);
+        alert("Não foi possível carregar os dados. Verifique se a API está rodando.");
+    }
+}
+
+iniciar();
