@@ -112,3 +112,54 @@ async function excluirReceita(id) {
 
     return await response.json();
 }
+async function listarDespesas() {
+    const response = await fetch(
+        `${API_URL}/despesas`
+    );
+
+    if (!response.ok) {
+        throw new Error("Erro ao buscar despesas");
+    }
+
+    return await response.json();
+}
+
+async function criarDespesa(descricao, valor, categoriaId, dataMovimentacao, usuarioId) {
+    const response = await fetch(
+        `${API_URL}/despesas`,
+        {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                descricao: descricao,
+                valor: valor,
+                categoria_id: categoriaId,
+                data_movimentacao: dataMovimentacao,
+                usuario_id: usuarioId
+            })
+        }
+    );
+
+    if (!response.ok) {
+        throw new Error("Erro ao criar despesa");
+    }
+
+    return await response.json();
+}
+
+async function excluirDespesa(id) {
+    const response = await fetch(
+        `${API_URL}/despesas/${id}`,
+        {
+            method: "DELETE"
+        }
+    );
+
+    if (!response.ok) {
+        throw new Error("Erro ao excluir despesa");
+    }
+
+    return await response.json();
+}
