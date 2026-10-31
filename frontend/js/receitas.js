@@ -1,4 +1,5 @@
 // Elementos da página
+const usuarioSelect = document.getElementById("usuario_receita");
 const descricao = document.getElementById("descricao_receita");
 const valor = document.getElementById("valor_receita");
 const data = document.getElementById("data_receita");
@@ -6,9 +7,8 @@ const categoria = document.getElementById("categoria_receita");
 const botao = document.getElementById("button_salvar_receita");
 const lista = document.getElementById("minha_lista_receita");
 
-// Dados carregados da API
+// Categorias carregadas da API (usadas para mostrar o nome na tabela)
 let todasCategorias = [];
-let usuario = null;
 
 // "2026-10-05" -> "05/10/2026"
 function formatarData(texto) {
@@ -40,6 +40,15 @@ function nomeDaCategoria(categoriaId) {
     return encontrada ? encontrada.nome : "Sem categoria";
 }
 
+// Mostra uma linha de aviso na tabela
+function mostrarMensagemNaTabela(texto) {
+    const tr = document.createElement("tr");
+    const td = criarCelula(texto);
+    td.colSpan = 5;
+    tr.appendChild(td);
+    lista.appendChild(tr);
+}
+
 // Busca as categorias na API e preenche o <select> só com as de tipo "receita"
 async function preencherCategorias() {
     todasCategorias = await listarCategorias();
@@ -63,24 +72,47 @@ async function preencherCategorias() {
     });
 }
 
-// Busca os usuários na API e usa o primeiro da lista
-async function carregarUsuario() {
+// Busca os usuários na API e preenche o <select> de usuários
+async function preencherUsuarios() {
     const usuarios = await listarUsuarios();
-    usuario = usuarios.length > 0 ? usuarios[0] : null;
+
+    usuarioSelect.innerHTML = "";
+
+    if (usuarios.length === 0) {
+        const vazia = document.createElement("option");
+        vazia.value = "";
+        vazia.textContent = "Nenhum usuário cadastrado";
+        usuarioSelect.appendChild(vazia);
+        return;
+    }
+
+    // O primeiro usuário da lista já vem selecionado
+    usuarios.forEach(function (item) {
+        const opcao = document.createElement("option");
+        opcao.value = item.id;
+        opcao.textContent = item.nome;
+        usuarioSelect.appendChild(opcao);
+    });
 }
 
-// Busca as receitas na API e desenha a tabela
+// Busca as receitas na API e desenha a tabela só com as do usuário escolhido
 async function carregarReceitas() {
-    const receitas = await listarReceitas();
-
     lista.innerHTML = "";
 
+    if (usuarioSelect.value === "") {
+        mostrarMensagemNaTabela("Nenhum usuário selecionado");
+        return;
+    }
+
+    const usuarioId = Number(usuarioSelect.value);
+    const todasReceitas = await listarReceitas();
+
+    const receitas = todasReceitas.filter(function (receita) {
+        return receita.usuario_id === usuarioId;
+    });
+
     if (receitas.length === 0) {
-        const tr = document.createElement("tr");
-        const td = criarCelula("Nenhuma receita cadastrada");
-        td.colSpan = 5;
-        tr.appendChild(td);
-        lista.appendChild(tr);
+        mostrarMensagemNaTabela("Nenhuma receita cadastrada para este usuário");
         return;
     }
 
@@ -111,10 +143,20 @@ async function carregarReceitas() {
     });
 }
 
-// Ao clicar em "Salvar", cria a receita na API e atualiza a tabela
+// Ao trocar o usuário, mostra as receitas dele
+usuarioSelect.addEventListener("change", async function () {
+    try {
+        await carregarReceitas();
+    } catch (erro) {
+        console.error(erro);
+        alert("Não foi possível carregar as receitas. Tente novamente.");
+    }
+});
+
+// Ao clicar em "Salvar", cria a receita para o usuário escolhido
 botao.addEventListener("click", async function () {
-    if (usuario === null) {
-        alert("Nenhum usuário cadastrado. Cadastre um usuário antes de salvar receitas.");
+    if (usuarioSelect.value === "") {
+        alert("Selecione um usuário antes de salvar a receita.");
         return;
     }
 
@@ -132,7 +174,7 @@ botao.addEventListener("click", async function () {
             numero,
             Number(categoria.value),
             data.value,
-            usuario.id
+            Number(usuarioSelect.value)
         );
         await carregarReceitas();
     } catch (erro) {
@@ -141,7 +183,7 @@ botao.addEventListener("click", async function () {
         return;
     }
 
-    // Limpa o formulário
+    // Limpa o formulário (o usuário escolhido continua selecionado)
     descricao.value = "";
     valor.value = "";
     data.value = "";
@@ -149,11 +191,11 @@ botao.addEventListener("click", async function () {
     descricao.focus();
 });
 
-// Ao abrir a página, carrega categorias, usuário e receitas (nessa ordem)
+// Ao abrir a página, carrega categorias, usuários e receitas (nessa ordem)
 async function iniciar() {
     try {
         await preencherCategorias();
-        await carregarUsuario();
+        await preencherUsuarios();
         await carregarReceitas();
     } catch (erro) {
         console.error(erro);
