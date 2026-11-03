@@ -20,8 +20,20 @@
     </header>
     <main>
         <h2>Resumo Financeiro</h2>
+
         <label for="usuario_dashboard">Usuário</label>
         <select id="usuario_dashboard"></select>
+
+        <label for="periodo_dashboard">Período</label>
+        <select id="periodo_dashboard">
+            <option value="todo">Todo o período</option>
+            <option value="hoje">Hoje</option>
+            <option value="7dias">Últimos 7 dias</option>
+            <option value="30dias">Últimos 30 dias</option>
+            <option value="mes">Mês atual</option>
+            <option value="ano">Ano atual</option>
+        </select>
+
         <section class="cards">
             <div class="card">
                 <h3>Saldo atual</h3>
@@ -38,6 +50,25 @@
             <div class="card">
                 <h3>Movimentações</h3>
                 <p id="movimentacoes">0</p>
+            </div>
+        </section>
+
+        <section>
+            <div class="card">
+                <h3>Receitas por categoria</h3>
+                <ul id="estatisticas_receita"></ul>
+            </div>
+            <div class="card">
+                <h3>Despesas por categoria</h3>
+                <ul id="estatisticas_despesa"></ul>
+            </div>
+            <div class="card">
+                <h3>Top 5 categorias com mais receitas</h3>
+                <ol id="ranking_receita"></ol>
+            </div>
+            <div class="card">
+                <h3>Top 5 categorias com mais gastos</h3>
+                <ol id="ranking_categoria"></ol>
             </div>
         </section>
     </main>
