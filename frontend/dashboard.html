@@ -71,8 +71,29 @@
                 <ol id="ranking_categoria"></ol>
             </div>
         </section>
+
+        <section>
+            <div class="card">
+                <h3>Gráfico: despesas por categoria</h3>
+                <div class="grafico"><canvas id="grafico_despesas"></canvas></div>
+            </div>
+            <div class="card">
+                <h3>Gráfico: receitas por categoria</h3>
+                <div class="grafico"><canvas id="grafico_receitas"></canvas></div>
+            </div>
+            <div class="card">
+                <h3>Receitas × Despesas</h3>
+                <div class="grafico"><canvas id="grafico_comparacao"></canvas></div>
+            </div>
+            <div class="card">
+                <h3>Evolução do saldo (últimos 12 meses)</h3>
+                <div class="grafico"><canvas id="grafico_saldo"></canvas></div>
+            </div>
+        </section>
     </main>
 <script src="js/api.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+<script src="js/grafico.js"></script>
 <script src="js/dashboard.js"></script>
 </body>
 </html>
