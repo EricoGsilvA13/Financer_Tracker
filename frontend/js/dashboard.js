@@ -159,7 +159,7 @@ async function preencherUsuarios() {
     });
 }
 
-// Busca receitas e despesas na API e atualiza cards, estatísticas e rankings
+// Busca receitas e despesas na API e atualiza cards, estatísticas, rankings e gráficos
 async function carregarDashboard() {
     if (usuarioSelect.value === "") {
         atualizarCards(0, 0, 0);
@@ -167,6 +167,7 @@ async function carregarDashboard() {
         desenharLista(estatisticasDespesa, [], "Nenhum usuário selecionado");
         desenharLista(rankingReceita, [], "Nenhum usuário selecionado");
         desenharLista(ranking, [], "Nenhum usuário selecionado");
+        atualizarGraficos([], [], [], []);
         return;
     }
 
@@ -188,6 +189,14 @@ async function carregarDashboard() {
     desenharLista(estatisticasDespesa, totaisDespesas, "Nenhuma despesa no período");
     desenharLista(rankingReceita, totaisReceitas.slice(0, 5), "Nenhuma receita no período");
     desenharLista(ranking, totaisDespesas.slice(0, 5), "Nenhuma despesa no período");
+
+    // Pizzas e barras usam o período; a evolução do saldo usa todo o histórico do usuário
+    atualizarGraficos(
+        receitas,
+        despesas,
+        filtrar(todasReceitas, usuarioId, null),
+        filtrar(todasDespesas, usuarioId, null)
+    );
 }
 
 // Ao trocar o usuário ou o período, atualiza tudo
