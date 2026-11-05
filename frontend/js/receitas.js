@@ -125,18 +125,16 @@ async function carregarReceitas() {
         tr.appendChild(criarCelula(nomeDaCategoria(receita.categoria_id)));
 
         const tdAcoes = document.createElement("td");
-        const excluir = document.createElement("button");
-        excluir.textContent = "Excluir";
-        excluir.addEventListener("click", async function () {
+        tdAcoes.appendChild(criarBotaoExcluir(async function () {
             try {
                 await excluirReceita(receita.id);
                 await carregarReceitas();
+                mostrarToast("Receita removida", "sucesso");
             } catch (erro) {
                 console.error(erro);
-                alert("Não foi possível excluir a receita. Tente novamente.");
+                mostrarToast("Erro ao excluir", "erro");
             }
-        });
-        tdAcoes.appendChild(excluir);
+        }));
         tr.appendChild(tdAcoes);
 
         lista.appendChild(tr);
@@ -149,14 +147,14 @@ usuarioSelect.addEventListener("change", async function () {
         await carregarReceitas();
     } catch (erro) {
         console.error(erro);
-        alert("Não foi possível carregar as receitas. Tente novamente.");
+        mostrarToast("Erro ao carregar os dados", "erro");
     }
 });
 
 // Ao clicar em "Salvar", cria a receita para o usuário escolhido
 botao.addEventListener("click", async function () {
     if (usuarioSelect.value === "") {
-        alert("Selecione um usuário antes de salvar a receita.");
+        mostrarToast("Selecione um usuário", "erro");
         return;
     }
 
@@ -164,7 +162,7 @@ botao.addEventListener("click", async function () {
     const numero = Number(valor.value);
 
     if (texto === "" || valor.value === "" || numero <= 0 || data.value === "" || categoria.value === "") {
-        alert("Preencha todos os campos. O valor deve ser maior que zero.");
+        mostrarToast("Preencha todos os campos. O valor deve ser maior que zero.", "erro");
         return;
     }
 
@@ -177,9 +175,10 @@ botao.addEventListener("click", async function () {
             Number(usuarioSelect.value)
         );
         await carregarReceitas();
+        mostrarToast("Receita cadastrada", "sucesso");
     } catch (erro) {
         console.error(erro);
-        alert("Não foi possível salvar a receita. Tente novamente.");
+        mostrarToast("Erro ao salvar", "erro");
         return;
     }
 
@@ -199,7 +198,7 @@ async function iniciar() {
         await carregarReceitas();
     } catch (erro) {
         console.error(erro);
-        alert("Não foi possível carregar os dados. Verifique se a API está rodando.");
+        mostrarToast("Erro ao carregar os dados", "erro");
     }
 }
 
