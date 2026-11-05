@@ -14,20 +14,32 @@ async function carregarCategorias() {
         const item = document.createElement("li");
         item.textContent = categoria.nome + " (" + categoria.tipo + ") ";
 
-        const excluir = document.createElement("button");
-        excluir.textContent = "Excluir";
-        excluir.addEventListener("click", async function () {
-            await excluirCategoria(categoria.id);
-            await carregarCategorias();
-        });
+        item.appendChild(criarBotaoExcluir(async function () {
+            try {
+                await excluirCategoria(categoria.id);
+                await carregarCategorias();
+                mostrarToast("Categoria removida", "sucesso");
+            } catch (erro) {
+                console.error(erro);
+                mostrarToast("Erro ao excluir", "erro");
+            }
+        }));
 
-        item.appendChild(excluir);
         lista.appendChild(item);
     });
 }
 
 // Ao abrir a página, mostra as categorias que já estão na API
-carregarCategorias();
+async function iniciar() {
+    try {
+        await carregarCategorias();
+    } catch (erro) {
+        console.error(erro);
+        mostrarToast("Erro ao carregar os dados", "erro");
+    }
+}
+
+iniciar();
 
 // Ao clicar em "Salvar", cria a categoria na API e recarrega a lista
 botao.addEventListener("click", async function () {
@@ -38,8 +50,15 @@ botao.addEventListener("click", async function () {
         return;
     }
 
-    await criarCategoria(nome, tipo.value);
-    await carregarCategorias();
+    try {
+        await criarCategoria(nome, tipo.value);
+        await carregarCategorias();
+        mostrarToast("Categoria cadastrada", "sucesso");
+    } catch (erro) {
+        console.error(erro);
+        mostrarToast("Erro ao salvar", "erro");
+        return;
+    }
 
     // Limpa o campo e deixa pronto para a próxima categoria
     input.value = "";
