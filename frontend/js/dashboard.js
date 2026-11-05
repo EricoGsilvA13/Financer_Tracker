@@ -205,7 +205,7 @@ async function aoMudarFiltro() {
         await carregarDashboard();
     } catch (erro) {
         console.error(erro);
-        alert("Não foi possível carregar o resumo. Tente novamente.");
+        mostrarToast("Erro ao carregar os dados", "erro");
     }
 }
 
@@ -220,7 +220,7 @@ async function iniciar() {
         await carregarDashboard();
     } catch (erro) {
         console.error(erro);
-        alert("Não foi possível carregar o resumo. Verifique se a API está rodando.");
+        mostrarToast("Erro ao carregar os dados", "erro");
     }
 }
 
