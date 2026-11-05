@@ -1,3 +1,31 @@
+// Mostra um aviso (toast) no canto superior direito que some sozinho.
+// tipo: "sucesso" (✅, borda verde) ou "erro" (❌, borda vermelha)
+function mostrarToast(mensagem, tipo) {
+    let container = document.getElementById("toast_container");
+
+    // Cria o container na primeira vez (não precisa de HTML)
+    if (!container) {
+        container = document.createElement("div");
+        container.id = "toast_container";
+        document.body.appendChild(container);
+    }
+
+    const toast = document.createElement("div");
+    toast.className = "toast toast-" + tipo;
+    toast.textContent = (tipo === "sucesso" ? "✅ " : "❌ ") + mensagem;
+
+    container.appendChild(toast);
+
+    // Some sozinho depois de 3 segundos (com um pequeno efeito de saída)
+    setTimeout(function () {
+        toast.classList.add("toast-saindo");
+    }, 2700);
+
+    setTimeout(function () {
+        toast.remove();
+    }, 3000);
+}
+
 // Cria o botão "Excluir" com confirmação no próprio lugar.
 // Ao clicar, ele dá lugar a "Tem certeza?" com os botões [Cancelar] e [Excluir].
 // A função aoConfirmar só roda se a pessoa clicar no segundo "Excluir".
