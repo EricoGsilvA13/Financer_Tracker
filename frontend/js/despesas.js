@@ -125,18 +125,16 @@ async function carregarDespesas() {
         tr.appendChild(criarCelula(nomeDaCategoria(despesa.categoria_id)));
 
         const tdAcoes = document.createElement("td");
-        const excluir = document.createElement("button");
-        excluir.textContent = "Excluir";
-        excluir.addEventListener("click", async function () {
+        tdAcoes.appendChild(criarBotaoExcluir(async function () {
             try {
                 await excluirDespesa(despesa.id);
                 await carregarDespesas();
+                mostrarToast("Despesa removida", "sucesso");
             } catch (erro) {
                 console.error(erro);
-                alert("Não foi possível excluir a despesa. Tente novamente.");
+                mostrarToast("Erro ao excluir", "erro");
             }
-        });
-        tdAcoes.appendChild(excluir);
+        }));
         tr.appendChild(tdAcoes);
 
         lista.appendChild(tr);
@@ -149,14 +147,14 @@ usuarioSelect.addEventListener("change", async function () {
         await carregarDespesas();
     } catch (erro) {
         console.error(erro);
-        alert("Não foi possível carregar as despesas. Tente novamente.");
+        mostrarToast("Erro ao carregar os dados", "erro");
     }
 });
 
 // Ao clicar em "Salvar", cria a despesa para o usuário escolhido
 botao.addEventListener("click", async function () {
     if (usuarioSelect.value === "") {
-        alert("Selecione um usuário antes de salvar a despesa.");
+        mostrarToast("Selecione um usuário", "erro");
         return;
     }
 
@@ -164,7 +162,7 @@ botao.addEventListener("click", async function () {
     const numero = Number(valor.value);
 
     if (texto === "" || valor.value === "" || numero <= 0 || data.value === "" || categoria.value === "") {
-        alert("Preencha todos os campos. O valor deve ser maior que zero.");
+        mostrarToast("Preencha todos os campos. O valor deve ser maior que zero.", "erro");
         return;
     }
 
@@ -177,9 +175,10 @@ botao.addEventListener("click", async function () {
             Number(usuarioSelect.value)
         );
         await carregarDespesas();
+        mostrarToast("Despesa cadastrada", "sucesso");
     } catch (erro) {
         console.error(erro);
-        alert("Não foi possível salvar a despesa. Tente novamente.");
+        mostrarToast("Erro ao salvar", "erro");
         return;
     }
 
@@ -199,7 +198,7 @@ async function iniciar() {
         await carregarDespesas();
     } catch (erro) {
         console.error(erro);
-        alert("Não foi possível carregar os dados. Verifique se a API está rodando.");
+        mostrarToast("Erro ao carregar os dados", "erro");
     }
 }
 
