@@ -1,4 +1,4 @@
-const API_URL = "http://localhost:8000";
+const API_URL = "https://financer-tracker.onrender.com";
 
 async function listarCategorias() {
     const response = await fetch(
